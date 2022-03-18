@@ -1,53 +1,59 @@
+
 <script setup>
 
-import { ref, reactive  } from "vue"
+import { ref, reactive, computed  } from "vue"
 
 import contacts from "./contacts.json";
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 
-let myContacts = contacts;
-let listOfFive = myContacts.splice(5);
-// console.log(myContacts);
-
 const wonOscar = ref(true);
 const wonEmmy = ref(true);
 
-function addRandom(){
-  let randomContacts = this.myContacts.length - this.listOfFive.length;
+const myContacts = reactive (contacts); //Whole list
+const listOfFive = reactive (myContacts.slice(0, 5)); //list of 5 actors
+const listOfOthers = reactive (myContacts.slice(5)); //list of remaining actors
 
-  let chooseOne = (Math.random()*randomContacts.length) * randomContacts.length;
-  
-  console.log(chooseOne.value)
-    
-};
+//1.To choose one random actor: 
+function addContact(){
+  let chooseOne = Math.floor(Math.random() * listOfOthers.length);
+
+   //console.log(chooseOne);
+   console.log(listOfOthers[chooseOne])
+
+   //2.Add the chosen one to initial list of 5
+    listOfFive.push (listOfOthers[chooseOne]);
+
+    //3.remove chosen actor from remaining list; (start at, deleteCount)
+    listOfOthers.splice (chooseOne, 1);
+
+    console.log(listOfFive);
+    console.log(listOfOthers);
+}
  
-let  newList = listOfFive += chooseOne;
+function sortByPopul(){
+  listOfFive.sort ((a, b) => (a.popularity < b.popularity ? 1 : -1));
+}
 
-// evenNumbers: function () {
-//     return this.numbers.filter(function (number) {
-//       return number % 2 === 0
-//     })
-//   }
+function sortByName() {
+   listOfFive.sort ((a, b) => (a.name > b.name ? 1 : -1));
+}
 
-// evenNumbers: function () {
-//     return this.numbers.sort(function (number) {
-//       return number % 2 === 0
-//     })
-//   }
+function removeContact(index) {
+  //remove 1 contact starting at 'index' 
+    listOfFive.splice(index, 1);
+  
+}
 
 </script>
 
 <template>
 
-
-
 <div class="actors-list">
-  <caption>IronContacts</caption>
+  <h1>IronContacts</h1>
  
-  <button @click="addRandom">Add New Contact 
+<button @click="addContact">Add New Contact 
 </button>
-{{newList.value}}
 
 <button @click="sortByPopul">Sort by Popularity 
 </button>
@@ -55,24 +61,22 @@ let  newList = listOfFive += chooseOne;
 <button @click="sortByName">Sort by Name
 </button>
 
-
   <td>
-    <th>Picture</th>
+    <th>Picture</th> 
+    
+    <th>Name</th> 
+    
+    <th>Popularity</th> 
 
-    <th>Name</th>
+    <th>Won an Oscar</th> 
 
-    <th>Popularity</th>
-
-    <th>Won an Oscar</th>
-
-    <th>Won an Emmy</th>
-
+    <th>Won an Emmy</th> 
 
   </td>
  
-  <div v-for="contact in myContacts" :key="contact.id">
+  <div v-for="(contact, index) in listOfFive" :key ="contact.id">
 
- <td><img class="pics" :src="contact.pictureUrl" alt="foto"></td>
+ <td><img class="pics" :src="contact.pictureUrl" :alt="foto"></td>
   <td> {{ contact.name }}</td>
   <td> {{ contact.popularity.toFixed(2) }}</td>
  
@@ -82,18 +86,17 @@ let  newList = listOfFive += chooseOne;
   <td v-if="contact.wonEmmy">Won Emmy </td>
  <td v-else > </td>
 
-<td>{{chooseOne.contact.name}}</td>
-<td>{{chooseOne.contact.popularity}}</td>
+<button @click="removeContact(index)">Delete Contact </button>
 
   </div>
 
-  
-
 </div>
 
-  <HelloWorld msg="Hello Vue 3 + Vite" />
+  <!-- <HelloWorld msg="Hello Vue 3 + Vite" /> -->
 
 </template>
+
+
 
 <style>
 #app {
@@ -110,9 +113,7 @@ let  newList = listOfFive += chooseOne;
   flex-direction: column;
  } 
 .pics {
-  width: 30%;
+  width: 20%;
 }
-
-
 
 </style>
